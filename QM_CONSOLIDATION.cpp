@@ -111,7 +111,11 @@ ostream& operator<<(ostream & out, QM_CONSOLIDATION me)
 {
 	cout << me.PopIndex();
 	cout << " |";
-	for_each(me.PopBit().begin(), me.PopBit().end(), [&](int x) {out << ' ' << x; });
+	for_each(me.PopBit().begin(), me.PopBit().end(), [&](int x) {
+		out << ' '; 
+		if (x == 2)out << "_";
+		else out << x;
+		 });
 	cout << " |";
 	for_each(me.PopNum().begin(), me.PopNum().end(), [&](int x) {out << ' ' << x; });
 	cout << endl;

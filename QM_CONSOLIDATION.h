@@ -27,8 +27,8 @@ public:
 	bool operator ==(QM_CONSOLIDATION& right);  //比较两个合并项是否相等
 	friend ostream& operator <<(ostream& out, QM_CONSOLIDATION me);
 
-private:
 	int diff(QM_CONSOLIDATION& right);//合并项比较
+private:
 	void SetBit();  //设置位向量
 	int index = -1;	//标识
 	int finger;		//位数

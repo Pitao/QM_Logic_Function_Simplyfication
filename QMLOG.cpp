@@ -17,7 +17,6 @@ QMLOG::QMLOG(vector<int> & vect)
 QMLOG::QMLOG(QMLOG & copy)
 {
 	size = copy.Size();
-	complete = copy.Complete();
 	MinItem = copy.PopMinItem();
 	ConMinItem = copy.GetSinplest();
 	ConsolidationTable = copy.PopConsolidationTable();
@@ -42,8 +41,8 @@ void QMLOG::operator=(QMLOG& copy)
 //初始化合成表
 void QMLOG::InitConList()
 {
-	int max = *(MinItem.end() - 1);
-	int finger = 1;
+	int max = *(MinItem.end() - 1); //获得最大值
+	int finger = 0;//位数置1
 	
 	while (max>0)
 	{
@@ -59,14 +58,30 @@ void QMLOG::InitConList()
 //合并函数
 void QMLOG::Consolidation()
 {
-	auto temp_con = ConsolidationTable;
-	for (int i = 0; i < size; i++)
+	vector<QM_CONSOLIDATION> temp_con ;
+	bool flag = false; //更改标记
+	//轮询
+	for (int i = 0; i < ConsolidationTable.size()-1; i++)
 	{
-		for (int j = i+1; j < size; j++)
+		for (int j = i+1; j < ConsolidationTable.size(); j++)
 		{
-			ConsolidationTable[i] += ConsolidationTable[j];
+			//如果符合只有一位不同，则合并
+			if (Diff(ConsolidationTable[i], ConsolidationTable[j])>=0)
+			{
+				QM_CONSOLIDATION temp = Merge(ConsolidationTable[i], ConsolidationTable[j]); //新的合成项
+				temp_con.push_back(temp);
+				flag = true;
+			}
 		}
 	}
+	if (flag)
+	{
+		ConsolidationTable = temp_con;
+		cout << *this; //debug point
+		Consolidation();
+	}
+	else return;
+	//ConsolidationTable = temp_con;
 }
 //初始化乘积表
 void QMLOG::InitProductTable()
@@ -84,6 +99,20 @@ void QMLOG::AddRemainItem()
 
 }
 
+const QM_CONSOLIDATION QMLOG::Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & right)
+{
+	auto ans = left;
+	ans.Merge(right);
+	return ans;
+}
+
+int QMLOG::Diff(QM_CONSOLIDATION& left, QM_CONSOLIDATION& right)
+{
+	return left.diff(right);
+}
+
+
+
 //设置最小项向量
 QMLOG& QMLOG::PutItem(vector<int>& vect)
 {
@@ -92,21 +121,20 @@ QMLOG& QMLOG::PutItem(vector<int>& vect)
 	//设置向量并排序
 	MinItem = vect;
 	sort(MinItem.begin(), MinItem.end());
-	complete = false;
 	return *this;
 }
 //取得结果
 vector<int>& QMLOG::GetSinplest()
 {
 	//如果已经有结果，就直接返回，否则计算
-	if (!complete)
+	if (ConMinItem.empty()==true)
 	{
 		InitConList();
+		cout << *this << endl; //debug point
 		Consolidation();
 		InitProductTable();
 		SelectLessItem();
 		AddRemainItem();
-		complete = true;
 	}
 	return ConMinItem;
 }
@@ -115,7 +143,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 {
 	int size = me.Size();
 	vector<int> MinItem = me.PopMinItem();			//最小项
-	vector<int> ConMinItem = me.GetSinplest();	//结果
+	//vector<int> ConMinItem = me.GetSinplest();	//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable = me.PopConsolidationTable();	//合并表
 	vector<QM_CONSOLIDATION> ProductTable = me.PopProductTable();				//乘积表
 

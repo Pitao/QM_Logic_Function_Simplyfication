@@ -38,7 +38,6 @@ public:
 
 	//输出变量函数
 	const int Size() { return size; }							//输出
-	const bool Complete() { return complete; }					//输出完成标记
 	const vector<int>& PopMinItem() { return MinItem;}			//输出最小项
 	const vector<QM_CONSOLIDATION>& PopConsolidationTable() { return ConsolidationTable; }	//输出合并表
 	const vector<QM_CONSOLIDATION>& PopProductTable() { return ProductTable; }				//输出乘积表
@@ -58,8 +57,10 @@ private:
 	void InitProductTable();	//初始化乘积表,Product_Table
 	void SelectLessItem();		//列表法选择最少乘积项
 	void AddRemainItem();		//增加剩余项
+	const QM_CONSOLIDATION  Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & right);		//合并合并项
+	int Diff(QM_CONSOLIDATION& left, QM_CONSOLIDATION& right);//合并项比较
+
 	//私有成员变量
-	bool complete=false;							//是否已计算
 	int size=0;									//最小项数量
 	int finger=0;								//最小项位数
 	vector<int> MinItem;						//最小项

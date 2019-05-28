@@ -143,6 +143,9 @@
     <Image Include="课本\2.jpg" />
     <Image Include="课本\3.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="log.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
