@@ -9,5 +9,6 @@ int main()
 	QMLOG qm1(v1);
 	qm1.GetSinplest();
 	cout << qm1;
+	cout << endl;
 	return 0;
 }
