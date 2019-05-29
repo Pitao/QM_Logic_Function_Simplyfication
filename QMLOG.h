@@ -67,6 +67,7 @@ private:
 	vector<int> ConMinItem;						//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable;//合并表
 	vector<QM_CONSOLIDATION> ProductTable;		//乘积表
+	
 
 };
 

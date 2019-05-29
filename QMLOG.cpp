@@ -58,30 +58,48 @@ void QMLOG::InitConList()
 //合并函数
 void QMLOG::Consolidation()
 {
-	vector<QM_CONSOLIDATION> temp_con ;
-	bool flag = false; //更改标记
+	/*定义一个临时合并表储存本次合并后的项目
+	  本次合并删除旧的可合并的合并项
+	  总合并表增加本次合并后的式子
+	*/
+	vector<QM_CONSOLIDATION> temp_con;
+	
+	bool over_flag = false; //全部合并标记
+	int size = ConsolidationTable.size();
+	bool* single_flag = new bool(size);
+	memset(single_flag, false, size);
 	//轮询
-	for (int i = 0; i < ConsolidationTable.size()-1; i++)
+	for (int i = 0; i < size-1; i++)
 	{
-		for (int j = i+1; j < ConsolidationTable.size(); j++)
+		for (int j = i+1; j < size; j++)
 		{
-			//如果符合只有一位不同，则合并
+			//如果符合只有一位不同，则合并并且标记
 			if (Diff(ConsolidationTable[i], ConsolidationTable[j])>=0)
 			{
-				QM_CONSOLIDATION temp = Merge(ConsolidationTable[i], ConsolidationTable[j]); //新的合成项
-				temp_con.push_back(temp);
-				flag = true;
+				temp_con.push_back(Merge(ConsolidationTable[i], ConsolidationTable[j]));//新的合成项
+				over_flag = true;
+				single_flag[i] = true;
+				single_flag[j] = true;
 			}
 		}
 	}
-	if (flag)
+	//删除已合并的合并项
+	for (int i = size-1; i >=0; i--)
 	{
-		ConsolidationTable = temp_con;
+		if (single_flag[i])
+		{
+			ConsolidationTable.erase(ConsolidationTable.begin() + i);
+			cout << *this;
+		}
+	}
+	if (over_flag)
+	{
+		ConsolidationTable.insert(ConsolidationTable.end(), temp_con.begin(), temp_con.end());
+		//copy(temp_con.begin(), temp_con.end(), ConsolidationTable.end());
 		cout << *this; //debug point
 		Consolidation();
 	}
-	else return;
-	//ConsolidationTable = temp_con;
+
 }
 //初始化乘积表
 void QMLOG::InitProductTable()
