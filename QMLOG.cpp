@@ -89,14 +89,12 @@ void QMLOG::Consolidation()
 		if (single_flag[i])
 		{
 			ConsolidationTable.erase(ConsolidationTable.begin() + i);
-			cout << *this;
 		}
 	}
 	if (over_flag)
 	{
 		ConsolidationTable.insert(ConsolidationTable.end(), temp_con.begin(), temp_con.end());
 		//copy(temp_con.begin(), temp_con.end(), ConsolidationTable.end());
-		cout << *this; //debug point
 		Consolidation();
 	}
 
@@ -104,12 +102,25 @@ void QMLOG::Consolidation()
 //初始化乘积表
 void QMLOG::InitProductTable()
 {
+	//设置p标记(index)
+	for (int i = 0; i < ConsolidationTable.size(); i++)
+	{
+		ConsolidationTable[i].PushIndex(i);
+	}
+
+	MinItem_Flag.assign(MinItem.size(), false);  //最小项包括标记置零
+	Index_Flag.assign(ConsolidationTable.size(), false);//合成项包括标记
+	//合成表置零
+	ProductTable.resize(ConsolidationTable.size());
+	for_each(ProductTable.begin(), ProductTable.end(), [&](vector<int> & x) {
+		x.assign(MinItem.size(), 0);
+		});
 
 }
 //选择最小项
 void QMLOG::SelectLessItem()
 {
-
+	
 }
 //增加剩余项
 void QMLOG::AddRemainItem()
@@ -142,15 +153,16 @@ QMLOG& QMLOG::PutItem(vector<int>& vect)
 	return *this;
 }
 //取得结果
-vector<int>& QMLOG::GetSinplest()
+string& QMLOG::GetSinplest()
 {
 	//如果已经有结果，就直接返回，否则计算
 	if (ConMinItem.empty()==true)
 	{
 		InitConList();
-		cout << *this << endl; //debug point
 		Consolidation();
 		InitProductTable();
+		cout << *this << endl; //debug point
+
 		SelectLessItem();
 		AddRemainItem();
 	}
@@ -163,7 +175,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 	vector<int> MinItem = me.PopMinItem();			//最小项
 	//vector<int> ConMinItem = me.GetSinplest();	//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable = me.PopConsolidationTable();	//合并表
-	vector<QM_CONSOLIDATION> ProductTable = me.PopProductTable();				//乘积表
+	vector<vector<int>> ProductTable = me.PopProductTable();				//乘积表
 
 	out << "长度: " << size << endl;
 	out << "待化简表达式" << endl;
@@ -199,22 +211,18 @@ ostream& operator<<(ostream& out, QMLOG& me)
 		out << "P&M";
 		for_each(MinItem.begin(), MinItem.end(), [&](int x) {out << ' ' << x; });
 		out << endl;
-		for_each(ProductTable.begin(), ProductTable.end(), [&](QM_CONSOLIDATION x)
+		int line = ProductTable.size();
+		int list = MinItem.size();
+		for (int i = 0; i < line; i++)
+		{
+			out << ' ' << ConsolidationTable[i].PopIndex() << ' ';
+			for (int j = 0; j < list; j++)
 			{
-				out << x.PopIndex();
-				for (int i = 0; i < MinItem.size(); i++)
-				{
-					vector<int> num = ProductTable[i].PopNum();
-					int len = num.size();
-					for (int j = 0; j < len; j++)
-					{
-						if (MinItem[i] == num[j])
-							cout << " 1 ";
-						else
-							cout << "   ";
-					}
-				}
-			});
+				if (ProductTable[i][j]) out << ' ' << ProductTable[i][j];
+				else out << "  ";
+			}
+			cout << endl;
+		}
 	}
 	return out;
 }

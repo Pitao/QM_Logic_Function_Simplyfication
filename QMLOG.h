@@ -34,13 +34,13 @@ public:
 	QMLOG& PutItem(vector<int>& Min_Item);//放入待化简式
 
 
-	vector<int>& GetSinplest();//得到最简式
+	string& GetSinplest();//得到最简式
 
 	//输出变量函数
 	const int Size() { return size; }							//输出
 	const vector<int>& PopMinItem() { return MinItem;}			//输出最小项
 	const vector<QM_CONSOLIDATION>& PopConsolidationTable() { return ConsolidationTable; }	//输出合并表
-	const vector<QM_CONSOLIDATION>& PopProductTable() { return ProductTable; }				//输出乘积表
+	const vector<vector<int>>& PopProductTable() { return ProductTable; }				//输出乘积表
 	
 	//操作符重载函数
 	void operator =(QMLOG& copy);//复制构造函数
@@ -64,11 +64,12 @@ private:
 	int size=0;									//最小项数量
 	int finger=0;								//最小项位数
 	vector<int> MinItem;						//最小项
-	vector<int> ConMinItem;						//结果
+	string ConMinItem;						//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable;//合并表
-	vector<QM_CONSOLIDATION> ProductTable;		//乘积表
+	vector<vector<int>> ProductTable;		//乘积表
 	
-
+	vector<bool>Index_Flag;
+	vector<bool>MinItem_Flag;
 };
 
 #endif

@@ -36,8 +36,4 @@ private:
 	vector<int> bit;//ŒªœÚ¡ø
 };
 
-
-
-
 #endif // !_QM_CONSOLIDATION_
-
