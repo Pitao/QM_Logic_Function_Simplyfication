@@ -102,20 +102,67 @@ void QMLOG::Consolidation()
 //初始化乘积表
 void QMLOG::InitProductTable()
 {
+
+	//删除合成表中的相同项
+	for (int i = 0; i < ConsolidationTable.size()-1; i++)
+	{
+		for (int j = ConsolidationTable.size()-1; j > i; j--)
+		{
+			if (ConsolidationTable[i] == ConsolidationTable[j])
+				ConsolidationTable.erase(ConsolidationTable.begin() + j);
+		}
+	}
+	//for (auto i = ConsolidationTable.begin(); i < ConsolidationTable.end()-1; i++)
+	//{
+	//	for (auto j = ConsolidationTable.end()-1; j>i; j--)
+	//	{
+	//		if (*i == *j)
+	//			ConsolidationTable.erase(j);
+	//	}
+	//}
+	int MinItem_size = MinItem.size();
+	int ConsoTable_size = ConsolidationTable.size();
+
 	//设置p标记(index)
-	for (int i = 0; i < ConsolidationTable.size(); i++)
+	for (int i = 0; i < ConsoTable_size; i++)
 	{
 		ConsolidationTable[i].PushIndex(i);
 	}
 
-	MinItem_Flag.assign(MinItem.size(), false);  //最小项包括标记置零
-	Index_Flag.assign(ConsolidationTable.size(), false);//合成项包括标记
-	//合成表置零
-	ProductTable.resize(ConsolidationTable.size());
+	MinItem_Flag.assign(MinItem_size, false);  //最小项包括标记置零
+	Index_Flag.assign(ConsoTable_size, false);//合成项包括标记
+	//乘积表置零
+	ProductTable.resize(ConsoTable_size);
 	for_each(ProductTable.begin(), ProductTable.end(), [&](vector<int> & x) {
-		x.assign(MinItem.size(), 0);
+		x.assign(MinItem_size, 0);
 		});
-
+	//乘积表分配内容
+	/*
+	  从MinItem中获取数值，再在ConsolidationTable中寻找
+	  找到记录标记并计数
+	*/
+	for (int i = 0; i < MinItem_size; i++)
+	{
+		int num = MinItem[i];
+		int count = 0;
+		vector<int> index_vect;
+		for (int j = 0; j < ConsoTable_size; j++)
+		{
+			auto num_vect = ConsolidationTable[j].PopNum();
+			for_each(num_vect.begin(), num_vect.end(), [&](int x) {
+				if (x == num)
+				{
+					count++;
+					index_vect.push_back(j);
+				}
+			});
+		}
+		for (int j = 0; j < index_vect.size(); j++)
+		{
+			int line = index_vect[j];
+			ProductTable[line][i] = count;
+		}
+	}
 }
 //选择最小项
 void QMLOG::SelectLessItem()
@@ -209,7 +256,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 	{
 		out << "乘积表" << endl;
 		out << "P&M";
-		for_each(MinItem.begin(), MinItem.end(), [&](int x) {out << ' ' << x; });
+		for_each(MinItem.begin(), MinItem.end(), [&](int x) {out << setw(4) << x; });
 		out << endl;
 		int line = ProductTable.size();
 		int list = MinItem.size();
@@ -218,8 +265,8 @@ ostream& operator<<(ostream& out, QMLOG& me)
 			out << ' ' << ConsolidationTable[i].PopIndex() << ' ';
 			for (int j = 0; j < list; j++)
 			{
-				if (ProductTable[i][j]) out << ' ' << ProductTable[i][j];
-				else out << "  ";
+				if (ProductTable[i][j]) out << setw(4) << ProductTable[i][j];
+				else out << "    ";
 			}
 			cout << endl;
 		}
