@@ -1,5 +1,11 @@
 #include "QMLOG.h"
 
+//对分查找
+//template<class T>
+//int find(vector<T> vect,T )
+//{
+//
+//}
 //数组构造函数
 QMLOG::QMLOG(int arr[], int n)
 {
@@ -96,6 +102,7 @@ void QMLOG::Consolidation()
 		ConsolidationTable.insert(ConsolidationTable.end(), temp_con.begin(), temp_con.end());
 		//copy(temp_con.begin(), temp_con.end(), ConsolidationTable.end());
 		Consolidation();
+		//delete[] single_flag;
 	}
 
 }
@@ -167,12 +174,42 @@ void QMLOG::InitProductTable()
 //选择最小项
 void QMLOG::SelectLessItem()
 {
-	
+	//line p标识数
+	//list 最小项数量
+	int line = ConsolidationTable.size();
+	int list = MinItem.size();
+	//遍历二维表，寻找只被标识一次的最小项，并标记最小项和对应的p标识
+	for (int i = 0; i < list; i++)
+	{
+		for (int j = 0; j < line; j++)
+		{
+			if (ProductTable[j][i] == 1)
+			{
+				Index_Flag[j] = true;
+				MinItem_Flag[i] = true;
+				//for (int x : ConsolidationTable[j].PopNum())
+				//{
+				//	int pos = find(MinItem, x);
+				//	MinItem_Flag[pos] = true;
+				//}
+				//for_each(ConsolidationTable[j].PopNum().begin(), ConsolidationTable[j].PopNum().end(), [&](int x) {
+				//	int pos=find(MinItem, x);
+				//	MinItem_Flag[pos] = true;
+				//	});
+				
+
+			}
+		}
+	}
+
+
 }
 //增加剩余项
 void QMLOG::AddRemainItem()
 {
-
+	//可用动态规划优化
+	auto ConTable_temp = ConsolidationTable;
+	auto MinItem_temp = MinItem;
 }
 
 const QM_CONSOLIDATION QMLOG::Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & right)
@@ -185,6 +222,41 @@ const QM_CONSOLIDATION QMLOG::Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & 
 int QMLOG::Diff(QM_CONSOLIDATION& left, QM_CONSOLIDATION& right)
 {
 	return left.diff(right);
+}
+
+void QMLOG::LogicExpress()
+{
+	string cList = "ABCDEFGH";
+	string ans;
+	int size = ConsolidationTable[0].PopBit().size();
+	int len = ConsolidationTable.size();
+	for (int i=0;i<len;i++)
+	{
+		if (Index_Flag[i])
+		{
+			auto tempBit = ConsolidationTable[i].PopBit();
+			for (int j = 0; j < size; j++)
+			{
+				char index = 'A' + j;
+				switch (tempBit[j])
+				{
+				case 0:
+					ans += index;
+					ans+= "\'";
+					break;
+				case 1:
+					ans += index ;
+					break;
+				case 2:
+					break;
+
+				}
+			}
+			ans += '+';
+		}
+	}
+	ans.pop_back();
+	ConMinItem = ans;
 }
 
 
@@ -207,11 +279,13 @@ string& QMLOG::GetSinplest()
 	{
 		InitConList();
 		Consolidation();
+
 		InitProductTable();
 		cout << *this << endl; //debug point
 
 		SelectLessItem();
 		AddRemainItem();
+		LogicExpress();
 	}
 	return ConMinItem;
 }
@@ -223,7 +297,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 	//vector<int> ConMinItem = me.GetSinplest();	//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable = me.PopConsolidationTable();	//合并表
 	vector<vector<int>> ProductTable = me.PopProductTable();				//乘积表
-
+	//打印最小项
 	out << "长度: " << size << endl;
 	out << "待化简表达式" << endl;
 	//for_each(MinItem.begin(), MinItem.end(), [&](int x) {out <<'m'<< x << " + "; });
@@ -233,7 +307,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 		out << " + m" << MinItem[i];
 	}
 	out << endl;
-
+	//打印合成表
 	if (ConsolidationTable.empty() == true)
 	{
 		cout << "无合成表" << endl;
@@ -247,7 +321,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 				out << x << endl;
 			});
 	}
-
+	//打印乘积表
 	if (ConsolidationTable.empty() == true)
 	{
 		cout << "无乘积表" << endl;
@@ -271,6 +345,10 @@ ostream& operator<<(ostream& out, QMLOG& me)
 			cout << endl;
 		}
 	}
+	
+	//结果表达式
+	cout << me.ConMinItem << endl;
+	
 	return out;
 }
 

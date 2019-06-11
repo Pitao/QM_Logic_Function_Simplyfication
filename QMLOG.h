@@ -57,9 +57,9 @@ private:
 	void InitProductTable();	//初始化乘积表,Product_Table
 	void SelectLessItem();		//列表法选择最少乘积项
 	void AddRemainItem();		//增加剩余项
+	void LogicExpress();		//得到逻辑表达式
 	const QM_CONSOLIDATION  Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & right);		//合并合并项
 	int Diff(QM_CONSOLIDATION& left, QM_CONSOLIDATION& right);//合并项比较
-
 	//私有成员变量
 	int size=0;									//最小项数量
 	int finger=0;								//最小项位数
@@ -67,7 +67,6 @@ private:
 	string ConMinItem;						//结果
 	vector<QM_CONSOLIDATION> ConsolidationTable;//合并表
 	vector<vector<int>> ProductTable;		//乘积表
-	
 	vector<bool>Index_Flag;
 	vector<bool>MinItem_Flag;
 };
