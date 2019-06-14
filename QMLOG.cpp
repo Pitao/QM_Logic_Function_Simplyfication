@@ -1,11 +1,54 @@
 #include "QMLOG.h"
 
 //对分查找
-//template<class T>
-//int find(vector<T> vect,T )
-//{
-//
-//}
+template<class T>
+int find(vector<T> vect,T elem)
+{
+	int left = 0;
+	int right = vect.size() - 1;
+	while(left<=right)
+	{
+		int mid = (left + right) / 2;
+		if (vect[mid] == elem)
+			return mid;
+		else if (vect[mid] < elem) left = mid + 1;
+		else right = mid - 1;
+	}
+	return -1;
+}
+vector<int> dfs(vector<int> depth, string Consum,
+	vector<string> Table,
+	vector<QM_CONSOLIDATION> ConsolidationTable, 
+	const string & normal)
+{
+	//如果dfs触底或者符合条件，就跳出
+	if (Table.empty() || Consum == normal)
+	{
+		return depth;
+	}
+	//树状dfs
+	vector<int> ans(1, 0);
+	for (int i =depth[0]; i < Table.size(); i++)
+	{
+
+		string str = Table[i];
+		for (int j = 0; j < str.size(); j++)
+		{
+			if (str[j] == '1')
+				Consum[j] = '1';
+		}
+		depth[depth[0] + 1] = ConsolidationTable[i].PopIndex();
+		//depth.push_back(ConsolidationTable[i].PopIndex());
+		depth[0]++;
+		//Table.erase(Table.begin() + i);
+		//ConsolidationTable.erase(ConsolidationTable.begin() + i);
+		vector<int> temp=dfs(depth, Consum, Table, ConsolidationTable,normal);
+		if (temp[0] < ans[0] ||ans[0]==0)
+			ans = temp;
+		depth[0]--;
+	}
+	return ans;
+}
 //数组构造函数
 QMLOG::QMLOG(int arr[], int n)
 {
@@ -186,17 +229,14 @@ void QMLOG::SelectLessItem()
 			if (ProductTable[j][i] == 1)
 			{
 				Index_Flag[j] = true;
-				MinItem_Flag[i] = true;
-				//for (int x : ConsolidationTable[j].PopNum())
-				//{
-				//	int pos = find(MinItem, x);
-				//	MinItem_Flag[pos] = true;
-				//}
-				//for_each(ConsolidationTable[j].PopNum().begin(), ConsolidationTable[j].PopNum().end(), [&](int x) {
-				//	int pos=find(MinItem, x);
-				//	MinItem_Flag[pos] = true;
-				//	});
-				
+				//MinItem_Flag[i] = true;
+				//将符合标准的合成项中所有最小项全部标记
+				for (int x : ConsolidationTable[j].PopNum())
+				{
+					int pos = find(MinItem, x);
+					if(pos>=0) 
+						MinItem_Flag[pos] = true;
+				}
 
 			}
 		}
@@ -208,8 +248,58 @@ void QMLOG::SelectLessItem()
 void QMLOG::AddRemainItem()
 {
 	//可用动态规划优化
-	auto ConTable_temp = ConsolidationTable;
-	auto MinItem_temp = MinItem;
+	//目前使用dfs
+	auto ReMinItem = MinItem;
+	auto ReCon = ConsolidationTable;
+	//初始化剩余项
+	for (int i = Index_Flag.size()-1; i >=0; i--)
+	{
+		if (Index_Flag[i])
+		{
+			ReCon.erase(ReCon.begin() + i);
+		}
+	}
+	for (int i = MinItem_Flag.size() - 1; i >= 0; i--)
+	{
+		if (MinItem_Flag[i])
+		{
+			ReMinItem.erase(ReMinItem.begin() + i);
+		}
+	}
+	//初始化剩余表
+	vector<string> ReTable;
+	for (int i = 0; i < ReCon.size(); i++)
+	{
+		string temp;
+		//auto vect = ReCon[i].PopNum;
+		for (int j = 0; j < ReMinItem.size(); j++)
+		{
+			bool flag = false;
+			//寻找单个
+			for (int x : ReCon[i].PopNum())
+			{
+				if (x == ReMinItem[j]) flag = true;
+			}
+			if (flag)
+				temp += "1";
+			else
+				temp += "0";
+		}
+		ReTable.push_back(temp);
+	}
+	string temp;
+	string normal;
+	for (int i = 0; i < ReMinItem.size(); i++)
+	{
+		temp += "0";
+		normal += "1";
+	}
+	vector<int> vect(ReMinItem.size()+1,0);
+	vect=dfs(vect,temp, ReTable, ReCon,normal);
+	for (int x : vect)
+	{
+		Index_Flag[x] = true;
+	}
 }
 
 const QM_CONSOLIDATION QMLOG::Merge(QM_CONSOLIDATION & left, QM_CONSOLIDATION & right)
@@ -281,7 +371,6 @@ string& QMLOG::GetSinplest()
 		Consolidation();
 
 		InitProductTable();
-		cout << *this << endl; //debug point
 
 		SelectLessItem();
 		AddRemainItem();
@@ -298,7 +387,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 	vector<QM_CONSOLIDATION> ConsolidationTable = me.PopConsolidationTable();	//合并表
 	vector<vector<int>> ProductTable = me.PopProductTable();				//乘积表
 	//打印最小项
-	out << "长度: " << size << endl;
+	out << "长度: " << size << endl<<endl;
 	out << "待化简表达式" << endl;
 	//for_each(MinItem.begin(), MinItem.end(), [&](int x) {out <<'m'<< x << " + "; });
 	out << 'm' << MinItem[0];
@@ -306,7 +395,7 @@ ostream& operator<<(ostream& out, QMLOG& me)
 	{
 		out << " + m" << MinItem[i];
 	}
-	out << endl;
+	out << endl << endl;
 	//打印合成表
 	if (ConsolidationTable.empty() == true)
 	{
@@ -345,9 +434,9 @@ ostream& operator<<(ostream& out, QMLOG& me)
 			cout << endl;
 		}
 	}
-	
+	cout << endl;
 	//结果表达式
-	cout << me.ConMinItem << endl;
+	cout <<"表达式为："<< me.ConMinItem << endl;
 	
 	return out;
 }
