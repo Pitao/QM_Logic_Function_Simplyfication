@@ -125,13 +125,26 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="QMLOG.cpp" />
+    <ClCompile Include="QM_CONSOLIDATION.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="myhead.h" />
     <ClInclude Include="QMLOG.h" />
+    <ClInclude Include="QM_CONSOLIDATION.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="QM_LOG说明文档.md" />
+    <None Include="QM合并项说明文档.md" />
     <None Include="QM更新文档.md" />
-    <None Include="readme.md" />
+    <None Include="更新文档.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="课本\1.jpg" />
+    <Image Include="课本\2.jpg" />
+    <Image Include="课本\3.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="log.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
